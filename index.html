@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>흥픽 · 기분 맞춤 음악</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#FFF7D6;
+  --ink:#2B2240;
+  --ink-soft:#5A4E6E;
+  --line:#EBDCA0;
+  --field:#FFFFFF;
+  --field-line:#EBDDA2;
+  --cta:#F9D33F; --cta-edge:#EBD27A;
+  --panel:#FFFDF2;
+  --y:#FBE48A; --y-edge:#DDB531;
+  --p:#FF90C8; --p-edge:#DF3E8C;
+  --s:#93D8FB; --s-edge:#2FA2DC;
+  --m:#8EF7C4; --m-edge:#2FD27C;
+  --v:#C58CF6; --v-edge:#8A33DA;
+  --o:#F9A88F; --o-edge:#E05530;
+  --heart:#E83F7A;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#211B2C; --ink:#FFF4D6; --ink-soft:#CFC3DC; --line:#4A3F5A;
+    --field:#2D2540; --field-line:#4D4262; --panel:#2A2338;
+    --cta-edge:#B9962A;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#211B2C; --ink:#FFF4D6; --ink-soft:#CFC3DC; --line:#4A3F5A;
+  --field:#2D2540; --field-line:#4D4262; --panel:#2A2338;
+  --cta-edge:#B9962A;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:720px; margin:0 auto; padding:36px 24px 40px}
+header{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.brand{display:flex; align-items:baseline; gap:10px}
+.brand b{font-size:32px; font-weight:900; letter-spacing:-0.02em}
+.brand span{font-size:16px; font-weight:700; color:var(--ink-soft)}
+.toggle{
+  display:flex; padding:4px; border:2px solid var(--line); border-radius:999px; background:var(--field);
+}
+.toggle button{
+  border:0; background:transparent; color:var(--ink-soft); font:inherit; font-size:17px;
+  padding:8px 18px; border-radius:999px; cursor:pointer;
+}
+.toggle button[aria-pressed="true"]{background:var(--cta); color:#2B2240}
+h1{
+  font-size:clamp(38px,9vw,56px); font-weight:300; letter-spacing:-0.02em;
+  margin:44px 0 8px; line-height:1.15;
+}
+.lead{margin:0 0 26px; font-size:18px; color:var(--ink-soft); font-weight:400}
+.grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+.mood{
+  --c:var(--y); --e:var(--y-edge);
+  position:relative; border:0; cursor:pointer; color:#1F1A2B;
+  background:var(--c);
+  border-radius:36px 36px 18px 18px;
+  box-shadow:0 7px 0 var(--e);
+  padding:22px 8px 20px; margin-bottom:7px;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  font:inherit; font-size:21px; font-weight:400;
+  transition:transform .12s, box-shadow .12s;
+}
+.mood .emo{font-size:44px; line-height:1.05}
+.mood:active{transform:translateY(5px); box-shadow:0 2px 0 var(--e)}
+.mood.on{outline:3px solid var(--ink); outline-offset:3px}
+.mood:focus-visible,.toggle button:focus-visible,.cta:focus-visible,.icon-btn:focus-visible,.play:focus-visible{outline:3px solid var(--ink); outline-offset:3px}
+.m1{--c:var(--y);--e:var(--y-edge)} .m2{--c:var(--p);--e:var(--p-edge)} .m3{--c:var(--s);--e:var(--s-edge)}
+.m4{--c:var(--m);--e:var(--m-edge)} .m5{--c:var(--v);--e:var(--v-edge)} .m6{--c:var(--o);--e:var(--o-edge)}
+.ask{display:flex; gap:12px; margin-top:24px}
+.ask input{
+  flex:1; min-width:0; font:inherit; font-size:19px; color:var(--ink);
+  background:var(--field); border:2px solid var(--field-line); border-radius:22px; padding:16px 22px;
+}
+.ask input::placeholder{color:#9A93A8}
+.ask input:focus{outline:none; border-color:var(--cta)}
+.cta{
+  border:0; cursor:pointer; font:inherit; font-size:20px; color:#2B2240;
+  background:var(--cta); border-radius:22px; padding:0 24px; box-shadow:0 7px 0 var(--cta-edge);
+  margin-bottom:7px; white-space:nowrap; transition:transform .12s, box-shadow .12s;
+}
+.cta:active{transform:translateY(5px); box-shadow:0 2px 0 var(--cta-edge)}
+.hint{min-height:22px; margin:8px 4px 0; font-size:15px; color:var(--ink-soft)}
+
+/* result */
+.result{margin-top:22px; display:none}
+.result.show{display:block; animation:pop .28s ease-out}
+@keyframes pop{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+@media (prefers-reduced-motion:reduce){.result.show{animation:none}.mood,.cta{transition:none}}
+.panel{
+  background:var(--panel); border:2px solid var(--line); border-radius:28px; padding:22px;
+}
+.r-head{display:flex; align-items:center; gap:14px; margin-bottom:14px}
+.r-emo{
+  width:62px; height:62px; flex:none; border-radius:20px; display:grid; place-items:center; font-size:36px;
+  background:var(--c); box-shadow:0 5px 0 var(--e);
+}
+.r-head h2{margin:0; font-size:22px; font-weight:700}
+.r-head p{margin:2px 0 0; color:var(--ink-soft); font-size:16px}
+.songs{list-style:none; margin:0; padding:0}
+.song{display:flex; align-items:center; gap:12px; padding:12px 4px; border-top:2px dashed var(--line)}
+.song:first-child{border-top:0}
+.play{
+  width:46px; height:46px; flex:none; border-radius:50%; display:grid; place-items:center;
+  background:var(--cta); color:#2B2240; text-decoration:none; font-size:17px; box-shadow:0 4px 0 var(--cta-edge);
+}
+.song .t{flex:1; min-width:0}
+.song .t b{display:block; font-size:18px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.song .t span{font-size:15px; color:var(--ink-soft)}
+.icon-btn{
+  border:0; background:transparent; cursor:pointer; font-size:26px; line-height:1; padding:6px;
+  color:var(--ink-soft); border-radius:12px;
+}
+.icon-btn[aria-pressed="true"]{color:var(--heart)}
+.r-actions{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+.ghost{
+  font:inherit; font-size:16px; cursor:pointer; color:var(--ink);
+  background:transparent; border:2px solid var(--line); border-radius:999px; padding:9px 18px;
+}
+.ghost:hover{border-color:var(--cta)}
+
+.saved{margin-top:26px}
+.saved h3{font-size:19px; font-weight:700; margin:0 0 8px}
+.saved .empty{color:var(--ink-soft); font-size:16px; margin:0}
+
+footer{
+  margin-top:48px; padding-top:18px; border-top:2px dashed var(--line);
+  font-size:16px; line-height:1.6; color:var(--ink-soft);
+}
+@media (max-width:560px){
+  .wrap{padding:28px 16px 32px}
+  .grid{gap:12px}
+  .mood{font-size:17px; padding:18px 4px 16px; border-radius:28px 28px 14px 14px}
+  .mood .emo{font-size:36px}
+  .ask input{font-size:17px; padding:14px 16px}
+  .cta{font-size:17px; padding:0 16px}
+  .lead{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><b>흥픽</b><span>기분 맞춤 음악</span></div>
+    <div class="toggle" role="group" aria-label="듣는 상황">
+      <button type="button" data-with="solo" aria-pressed="true">혼자</button>
+      <button type="button" data-with="friends" aria-pressed="false">친구랑</button>
+    </div>
+  </header>
+
+  <h1>지금 기분이 어때요?</h1>
+  <p class="lead">고르거나 직접 적어 주세요. 기분에 맞는 노래를 바로 틀어 드려요.</p>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="ask">
+    <input id="free" type="text" placeholder="예: 오늘 너무 피곤하고 짜증나" aria-label="지금 기분 적기">
+    <button class="cta" id="go" type="button">추천받기</button>
+  </div>
+  <p class="hint" id="hint" aria-live="polite"></p>
+
+  <section class="result" id="result" aria-live="polite">
+    <div class="panel" id="panel">
+      <div class="r-head">
+        <div class="r-emo" id="rEmo"></div>
+        <div><h2 id="rTitle"></h2><p id="rSub"></p></div>
+      </div>
+      <ul class="songs" id="songs"></ul>
+      <div class="r-actions">
+        <button class="ghost" id="again" type="button">다른 곡 보기</button>
+        <button class="ghost" id="playAll" type="button">첫 곡부터 틀기</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="saved">
+    <h3>저장한 노래</h3>
+    <ul class="songs" id="savedList"></ul>
+    <p class="empty" id="savedEmpty">아직 없어요. 마음에 드는 노래의 하트를 눌러 보세요.</p>
+  </section>
+
+  <footer>광고도 없고, 입력한 기분은 이 기기 밖으로 나가지 않아요. 하트를 눌러 저장한 노래만 이 브라우저에 남아요.</footer>
+</div>
+
+<script>
+const MOODS = [
+  {id:"best", cls:"m1", emo:"😆", label:"기분 최고", msg:"좋은 기분, 더 크게 키워 볼게요.",
+   keys:["좋","최고","행복","신나","기뻐","설레","합격","완전","굿","짱","기분좋"],
+   solo:[["좋은 날","아이유"],["Super Shy","NewJeans"],["Dynamite","방탄소년단"],["한 페이지가 될 수 있게","DAY6"],["여행","볼빨간사춘기"],["빨간 맛","레드벨벳"],["아주 NICE","세븐틴"],["Cheer Up","트와이스"]],
+   friends:[["아주 NICE","세븐틴"],["Cheer Up","트와이스"],["우주를 줄게","볼빨간사춘기"],["Dynamite","방탄소년단"],["Hype Boy","NewJeans"],["한 페이지가 될 수 있게","DAY6"],["좋은 날","아이유"]]},
+  {id:"hype", cls:"m2", emo:"🕺", label:"흥 폭발", msg:"몸이 먼저 움직이는 곡들이에요.",
+   keys:["흥","춤","파티","놀","불금","댄스","텐션","신남","들썩"],
+   solo:[["Supernova","에스파"],["손오공","세븐틴"],["아무노래","지코"],["뚜두뚜두","블랙핑크"],["뱅뱅뱅","빅뱅"],["Next Level","에스파"],["강남스타일","싸이"]],
+   friends:[["강남스타일","싸이"],["Gee","소녀시대"],["Sorry, Sorry","슈퍼주니어"],["Tell Me","원더걸스"],["아무노래","지코"],["손오공","세븐틴"],["뱅뱅뱅","빅뱅"]]},
+  {id:"meh", cls:"m3", emo:"🙂", label:"그냥 그래요", msg:"힘 빼고 듣기 좋은 곡들이에요.",
+   keys:["그냥","보통","무난","심심","별로","쏘쏘","평범","멍"],
+   solo:[["Everything","검정치마"],["TOMBOY","혁오"],["밤편지","아이유"],["주저하는 연인들을 위해","잔나비"],["Square (2017)","백예린"],["흔들리는 꽃들 속에서 네 샴푸향이 느껴진거야","장범준"]],
+   friends:[["벚꽃 엔딩","버스커 버스커"],["아메리카노","10cm"],["주저하는 연인들을 위해","잔나비"],["TOMBOY","혁오"],["여수 밤바다","버스커 버스커"],["Everything","검정치마"]]},
+  {id:"tired", cls:"m4", emo:"😮‍💨", label:"지쳤어요", msg:"오늘 하루, 여기서 잠깐 내려놓아요.",
+   keys:["피곤","지쳐","지침","지쳤","힘들","졸려","녹초","번아웃","잠","야근","시험"],
+   solo:[["Love poem","아이유"],["걱정말아요 그대","전인권"],["두 사람","성시경"],["모든 날, 모든 순간","폴킴"],["사건의 지평선","윤하"],["다행이다","이적"]],
+   friends:[["걱정말아요 그대","전인권"],["두 사람","성시경"],["다행이다","이적"],["사건의 지평선","윤하"],["모든 날, 모든 순간","폴킴"]]},
+  {id:"blue", cls:"m5", emo:"🌧️", label:"우울해요", msg:"울적한 마음 옆에 조용히 있어 줄 곡들이에요.",
+   keys:["우울","슬퍼","슬프","눈물","울","외로","허전","이별","속상","서운"],
+   solo:[["한숨","이하이"],["봄날","방탄소년단"],["무릎","아이유"],["서른 즈음에","김광석"],["어떻게 이별까지 사랑하겠어, 널 사랑하는 거지","AKMU"],["스물다섯, 스물하나","자우림"]],
+   friends:[["친구","안재욱"],["스물다섯, 스물하나","자우림"],["봄날","방탄소년단"],["서른 즈음에","김광석"],["한숨","이하이"]]},
+  {id:"stuffy", cls:"m6", emo:"😤", label:"답답해요", msg:"속이 뻥 뚫리게 소리 질러 봐요.",
+   keys:["답답","짜증","화나","화가","빡","열받","스트레스","억울","막막","미치"],
+   solo:[["Not Today","방탄소년단"],["말달리자","크라잉넛"],["나는 나비","윤도현"],["거울","국카스텐"],["하하하쏭","자우림"],["삐삐","아이유"],["Next Level","에스파"]],
+   friends:[["말달리자","크라잉넛"],["나는 나비","윤도현"],["하하하쏭","자우림"],["넌 내게 반했어","노브레인"],["Not Today","방탄소년단"]]}
+];
+const SHOW = 4;
+let mode = "solo", current = null, offset = 0;
+
+const $ = id => document.getElementById(id);
+const ytUrl = s => "https://www.youtube.com/results?search_query=" + encodeURIComponent(s[1] + " " + s[0]);
+const key = s => s[1] + "|" + s[0];
+
+function loadSaved(){ try{ return JSON.parse(localStorage.getItem("heungpick-saved")) || []; }catch(e){ return []; } }
+function storeSaved(list){ try{ localStorage.setItem("heungpick-saved", JSON.stringify(list)); }catch(e){} }
+let saved = loadSaved();
+
+// mood buttons
+const grid = $("grid");
+MOODS.forEach(m=>{
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "mood " + m.cls; b.dataset.id = m.id;
+  b.innerHTML = `<span class="emo" aria-hidden="true">${m.emo}</span><span>${m.label}</span>`;
+  b.addEventListener("click", ()=>{ $("hint").textContent = ""; pick(m, true); });
+  grid.appendChild(b);
+});
+
+// toggle
+document.querySelectorAll(".toggle button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    mode = b.dataset.with;
+    document.querySelectorAll(".toggle button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+    if(current){ offset = 0; render(); }
+  });
+});
+
+function pick(m, scroll){
+  current = m; offset = 0;
+  document.querySelectorAll(".mood").forEach(x=>x.classList.toggle("on", x.dataset.id===m.id));
+  render();
+  if(scroll) $("result").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start"});
+}
+
+function songRow(s){
+  const li = document.createElement("li");
+  li.className = "song";
+  const on = saved.some(x=>key(x)===key(s));
+  li.innerHTML = `<a class="play" href="${ytUrl(s)}" target="_blank" rel="noopener" aria-label="${s[0]} 틀기">▶</a>
+    <div class="t"><b>${s[0]}</b><span>${s[1]}</span></div>
+    <button class="icon-btn" type="button" aria-pressed="${on}" aria-label="${s[0]} 저장">${on ? "♥" : "♡"}</button>`;
+  li.querySelector(".icon-btn").addEventListener("click", ()=>toggleSave(s));
+  return li;
+}
+
+function render(){
+  const m = current, list = m[mode];
+  const panel = $("panel");
+  panel.style.setProperty("--c", `var(--${m.cls==="m1"?"y":m.cls==="m2"?"p":m.cls==="m3"?"s":m.cls==="m4"?"m":m.cls==="m5"?"v":"o"})`);
+  panel.style.setProperty("--e", `var(--${m.cls==="m1"?"y":m.cls==="m2"?"p":m.cls==="m3"?"s":m.cls==="m4"?"m":m.cls==="m5"?"v":"o"}-edge)`);
+  $("rEmo").textContent = m.emo;
+  $("rTitle").textContent = m.label + (mode==="friends" ? " · 친구랑" : "");
+  $("rSub").textContent = mode==="friends" ? "다 같이 따라 부르기 좋은 곡으로 골랐어요." : m.msg;
+  const ul = $("songs"); ul.innerHTML = "";
+  for(let i=0;i<Math.min(SHOW,list.length);i++) ul.appendChild(songRow(list[(offset+i)%list.length]));
+  $("result").classList.remove("show"); void $("result").offsetWidth; $("result").classList.add("show");
+}
+
+function toggleSave(s){
+  const i = saved.findIndex(x=>key(x)===key(s));
+  if(i>=0) saved.splice(i,1); else saved.unshift(s);
+  storeSaved(saved);
+  if(current){ const ul=$("songs"); const list=current[mode]; ul.innerHTML=""; for(let j=0;j<Math.min(SHOW,list.length);j++) ul.appendChild(songRow(list[(offset+j)%list.length])); }
+  renderSaved();
+}
+
+function renderSaved(){
+  const ul = $("savedList"); ul.innerHTML = "";
+  saved.forEach(s=>ul.appendChild(songRow(s)));
+  $("savedEmpty").style.display = saved.length ? "none" : "block";
+}
+
+$("again").addEventListener("click", ()=>{
+  const list = current[mode];
+  offset = (offset + SHOW) % list.length;
+  render();
+});
+$("playAll").addEventListener("click", ()=>{
+  const list = current[mode];
+  window.open(ytUrl(list[offset % list.length]), "_blank", "noopener");
+});
+
+// free text → mood (runs only on this device)
+function guess(text){
+  let best = null, score = 0;
+  MOODS.forEach(m=>{
+    const n = m.keys.reduce((a,k)=>a + (text.includes(k) ? 1 : 0), 0);
+    if(n > score){ score = n; best = m; }
+  });
+  return best;
+}
+function submit(){
+  const text = $("free").value.trim();
+  if(!text){ $("hint").textContent = "기분을 한 줄로 적거나, 위에서 하나 골라 주세요."; $("free").focus(); return; }
+  const m = guess(text);
+  if(m){ $("hint").textContent = `‘${m.label}’ 쪽으로 골랐어요.`; pick(m, true); }
+  else { $("hint").textContent = "딱 맞는 말을 못 찾았어요. 위 버튼에서 가까운 기분을 골라 주세요."; }
+}
+$("go").addEventListener("click", submit);
+$("free").addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.isComposing) submit(); });
+
+renderSaved();
+</script>
+</body>
+</html>
